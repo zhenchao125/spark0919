@@ -19,7 +19,7 @@ object Df2Rdd {
         val rdd: RDD[Row] = df.rdd
         
         val rdd1 = rdd.map(row => {
-            row.getString(0)
+            row.getString(1)
         })
         rdd1.collect.foreach(println)
         
