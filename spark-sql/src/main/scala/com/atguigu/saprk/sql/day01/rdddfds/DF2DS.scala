@@ -1,4 +1,4 @@
-package com.atguigu.saprk.sql.day01
+package com.atguigu.saprk.sql.day01.rdddfds
 
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD

@@ -1,10 +1,8 @@
-package com.atguigu.saprk.sql.day01
+package com.atguigu.saprk.sql.day01.rdddfds
 
-import org.apache
-import org.apache.spark
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
+import org.apache.spark.sql.{Dataset, SparkSession}
 
 /**
   * Author atguigu
@@ -25,24 +23,3 @@ object Rdd2Ds {
         
     }
 }
-/*
-RDD->DF
-    rdd.toDF
-    
-    RDD中的存储的是 样例类, 转起来特别方便
-
-
-df->rdd
-    df.rdd
-    得到的rdd中的数据类型一定是 Row
-    
-rdd->ds
-    有样例类
-    rdd.toDS
- 
-ds->rdd
-    ds.rdd
-    
-
-
- */

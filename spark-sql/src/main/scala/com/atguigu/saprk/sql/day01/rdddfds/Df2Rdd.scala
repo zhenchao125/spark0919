@@ -1,4 +1,4 @@
-package com.atguigu.saprk.sql.day01
+package com.atguigu.saprk.sql.day01.rdddfds
 
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
@@ -27,16 +27,3 @@ object Df2Rdd {
         
     }
 }
-/*
-RDD->DF
-    rdd.toDF
-    
-    RDD中的存储的是 样例类, 转起来特别方便
-
-
-df->rdd
-    df.rdd
-    得到的rdd中的数据类型一定是 Row
-
-
- */
