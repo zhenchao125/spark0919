@@ -24,6 +24,7 @@ object Df2Rdd {
         rdd1.collect.foreach(println)
         
         spark.stop()
+        //更改
     }
 }
 /*
