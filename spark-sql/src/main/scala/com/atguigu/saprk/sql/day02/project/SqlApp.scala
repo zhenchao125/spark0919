@@ -55,7 +55,7 @@ object SqlApp {
               |from t2
             """.stripMargin).createOrReplaceTempView("t3")
         // 4.每个地区取前3
-        val url = "jdbc:mysql://hadoop102:3306/spark0919"
+        val url = "jdbc:mysql://hadoop102:3306/spark0919?useUnicode=true&characterEncoding=utf8"
         val tbtale = "area_click_count_top"
         val props = new Properties()
         props.put("user", "root")
@@ -69,7 +69,7 @@ object SqlApp {
               |    remark
               |from t3
               |where rk<=3
-            """.stripMargin).write.jdbc(url, tbtale, props)
+            """.stripMargin).write.mode("overwrite").jdbc(url, tbtale, props)
         
         spark.close()
     }

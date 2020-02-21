@@ -7,3 +7,8 @@
 *.iml
 out
 gen
+spark-sql/src/test/
+spark-sql/target/
+spark-warehouse/
+src/main/java/
+src/test/
