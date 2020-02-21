@@ -54,7 +54,7 @@ object SqlApp {
               |    rank() over(partition by area order by ct desc) rk
               |from t2
             """.stripMargin).createOrReplaceTempView("t3")
-        // 4. 4. 每个地区取前3
+        // 4.每个地区取前3
     
         val url = "jdbc:mysql://hadoop102:3306/rdd"
         val tbtale = "area_click_count_top"
