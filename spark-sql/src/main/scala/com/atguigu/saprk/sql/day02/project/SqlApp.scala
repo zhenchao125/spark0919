@@ -55,8 +55,7 @@ object SqlApp {
               |from t2
             """.stripMargin).createOrReplaceTempView("t3")
         // 4.每个地区取前3
-    
-        val url = "jdbc:mysql://hadoop102:3306/rdd"
+        val url = "jdbc:mysql://hadoop102:3306/spark0919"
         val tbtale = "area_click_count_top"
         val props = new Properties()
         props.put("user", "root")
