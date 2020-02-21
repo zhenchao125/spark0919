@@ -14,6 +14,7 @@ object SparkHiveWite {
             .master("local[*]")
             .appName("SparkHiveWite")
             .enableHiveSupport()
+            .config(" spark.sql.hive.convertMetastoreParquet", false)
             .getOrCreate()
         import spark.implicits._
         val df: DataFrame = spark.read.json("file:///c:/users.json")
@@ -23,7 +24,7 @@ object SparkHiveWite {
 //        spark.sql("insert into user1 select * from user")
         
         // 2. 直接把df的数据写入到hive中.  表可以不存在, 会自动创建
-        // 顺序没有要求, 要保证当是append实时, 列名要一样
+        // 顺序没有要求, 要保证当是append时, 列名要一样
         df.write.mode("append").saveAsTable("user2")
         
         // 3. 把df数据插入到hive的表中, 这个表必须提前存在
