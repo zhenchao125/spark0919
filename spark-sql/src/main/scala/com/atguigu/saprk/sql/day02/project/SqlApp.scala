@@ -1,5 +1,7 @@
 package com.atguigu.saprk.sql.day02.project
 
+import java.util.Properties
+
 import org.apache.spark.sql.SparkSession
 
 /**
@@ -15,7 +17,7 @@ object SqlApp {
             .enableHiveSupport()
             .getOrCreate()
         import spark.implicits._
-//        spark.udf.register("remark", null);
+        spark.udf.register("remark", RemarkUDAF);
         spark.sql("use sql0919")
         // 1. join表, 然后把需要字段查询出来   t1
         spark.sql(
@@ -53,6 +55,12 @@ object SqlApp {
               |from t2
             """.stripMargin).createOrReplaceTempView("t3")
         // 4. 4. 每个地区取前3
+    
+        val url = "jdbc:mysql://hadoop102:3306/rdd"
+        val tbtale = "area_click_count_top"
+        val props = new Properties()
+        props.put("user", "root")
+        props.put("password", "aaaaaa")
         spark.sql(
             """
               |select
@@ -62,7 +70,7 @@ object SqlApp {
               |    remark
               |from t3
               |where rk<=3
-            """.stripMargin).show(1000, false)
+            """.stripMargin).write.jdbc(url, tbtale, props)
         
         spark.close()
     }
