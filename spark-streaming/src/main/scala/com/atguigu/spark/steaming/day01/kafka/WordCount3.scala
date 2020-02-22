@@ -5,8 +5,9 @@ import kafka.message.MessageAndMetadata
 import kafka.serializer.StringDecoder
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.spark.SparkConf
+import org.apache.spark.streaming.dstream.InputDStream
 import org.apache.spark.streaming.kafka.KafkaCluster.Err
-import org.apache.spark.streaming.kafka.{KafkaCluster, KafkaUtils}
+import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaCluster, KafkaUtils, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 /**
@@ -41,11 +42,28 @@ object WordCount3 {
                         topicAndPartitionSet.foreach(topicAndPartition => {
                             resultMap += topicAndPartition -> 0L
                         })
-                    
                 }
             case _ => // 如果是Left值, 不需要做任何处理. 表示的topic和分区不存在
         }
         resultMap
+    }
+    // 保存消费的偏移量, 然后在读的时候才可以读到上次的位置开始接着消费
+    def save(sourceStream: InputDStream[String]) = {
+        // 保存偏移量, 必须每消费一次, 保存一次
+        sourceStream.foreachRDD(rdd => {
+            var map = Map[TopicAndPartition, Long]()
+            
+            // 1. 把rdd强壮成包含分区偏移量的对象.   rdd必须是从kafka直接出来的那个Stream内部的
+            val hasOffsetRanges: HasOffsetRanges = rdd.asInstanceOf[HasOffsetRanges]
+            val offsetRanges: Array[OffsetRange] = hasOffsetRanges.offsetRanges
+            
+            offsetRanges.foreach(offsetRange => {
+                val key: TopicAndPartition = offsetRange.topicAndPartition()
+                val value: Long = offsetRange.untilOffset   // 0 to 10 | 0 until 10
+                map += key -> value
+            })
+            cluster.setConsumerOffsets(groupId, map)
+        })
     }
     
     def main(args: Array[String]): Unit = {
@@ -53,12 +71,14 @@ object WordCount3 {
         val ssc = new StreamingContext(conf, Seconds(3))
         
         
-        val sourceStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder, String](
+        val sourceStream: InputDStream[String] = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder, String](
             ssc,
             params,
             readOffsets(),
-            (handler: MessageAndMetadata[String, String]) => ""
+            (handler: MessageAndMetadata[String, String]) => handler.message()
         )
+        // 保存偏移量
+        save(sourceStream)
         
         sourceStream.print(10000)
         ssc.start()
