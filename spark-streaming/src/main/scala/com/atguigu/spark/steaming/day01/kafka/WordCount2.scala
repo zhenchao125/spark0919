@@ -42,3 +42,7 @@ object WordCount2 {
         
     }
 }
+/*
+spark streaming 没有实现幂等性
+    没有办法实现严格一次, 实现了至少一次
+ */
