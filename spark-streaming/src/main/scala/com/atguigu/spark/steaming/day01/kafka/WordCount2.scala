@@ -30,6 +30,7 @@ object WordCount2 {
             case (_, v) => v.split("\\W+").map((_, 1))
         }.reduceByKey(_ + _)
         resultStream.print(1000)
+        
         ssc
     }
     
