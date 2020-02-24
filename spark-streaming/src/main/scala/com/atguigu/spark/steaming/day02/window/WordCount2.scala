@@ -8,18 +8,20 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
   * Author atguigu
   * Date 2020/2/24 10:34
   */
-object WordCount {
+object WordCount2 {
     def main(args: Array[String]): Unit = {
         val conf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("WordCount")
         val ssc = new StreamingContext(conf, Seconds(3))
         ssc.checkpoint("ck2")
-        val sourceSteam: ReceiverInputDStream[String] = ssc.socketTextStream("hadoop102", 9999)
+        val sourceSteam = ssc.socketTextStream("hadoop102", 9999)
+            .window(Seconds(9), Seconds(6))
         
         
-        val result = sourceSteam.flatMap(_.split(" ")).map((_, 1))
-//            .reduceByKeyAndWindow(_ + _, Seconds(9), slideDuration = Seconds(6))
-//            .reduceByKeyAndWindow(_ + _, _ - _ , Seconds(6), Seconds(3))
-            .reduceByKeyAndWindow(_ + _, _ - _ , Seconds(6), Seconds(3), filterFunc = _._2 > 0)
+        val result = sourceSteam
+            .flatMap(_.split(" "))
+            .map((_, 1))
+            .reduceByKey(_ + _)
+//
         result.print(1000)
         
         ssc.start()
