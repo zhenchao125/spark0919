@@ -11,6 +11,7 @@
     <modules>
         <module>spark-sql</module>
         <module>spark-streaming</module>
+        <module>mock-realtime</module>
     </modules>
     <build>
         <plugins>
