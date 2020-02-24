@@ -1,7 +1,13 @@
 package com.atguigu.spark.steaming.project.app
 
+import java.text.SimpleDateFormat
+import java.util.Date
+
 import com.atguigu.spark.steaming.project.bean.AdsInfo
+import com.atguigu.spark.steaming.project.util.RedisUtil
 import org.apache.spark.streaming.dstream.DStream
+import org.json4s.jackson.JsonMethods
+import redis.clients.jedis.Jedis
 
 /**
   * Author atguigu
@@ -31,12 +37,44 @@ object AdsClickTop3App extends App {
         
         // 3. 写入到redis
         resultStream.foreachRDD(rdd => {
-            rdd.foreachPartition(it => {
+            rdd.foreachPartition((it: Iterator[((String, String), List[(String, Int)])]) => {
                 // 1. 建立到redis连接
-                
+                val client: Jedis = RedisUtil.getClient
                 // 2. 把数据写入到redis
+                /*
+                key                                             value
+                每天一个key                                      hash
+                "day:area:ads:"2020-02-24                       field           value
+                                                                "华北"          {"3": 50, "2": 47, "1": 47}
+                 
+                 */
+                // 单条写入
+                /*it.foreach{
+                    case ((day, area), list) =>
+                        val key = "day:area:ads:" + day
+                        val field = area
+                        // json4s  json for scala
+                        import org.json4s.JsonDSL._
+                        val value = JsonMethods.compact(JsonMethods.render(list))
+                        client.hset(key, field, value)
+                }*/
+                // 批次写入
+                import org.json4s.JsonDSL._
+                if (it.hasNext) {
+                    
+                    val key = "day:area:ads:" + new SimpleDateFormat("yyyy-MM-dd").format(new Date())
+                    // map
+                    // Iterator[((String, String), List[(String, Int)])]
+                    // 有一些隐式转换,架起了scala的集合和java的集合之间的桥梁
+                    import scala.collection.JavaConversions._
+                    val areaAndAdsCout: Map[String, String] = it.map {
+                        case ((_, area), list) => (area, JsonMethods.compact(JsonMethods.render(list)))
+                    }.toMap
+                    client.hmset(key, areaAndAdsCout)
+                }
                 
                 // 3. 关闭到redis的连接
+                RedisUtil.close(client)
             })
         })
         
@@ -53,7 +91,34 @@ object AdsClickTop3App extends App {
 
 2. 每天每地区取top3
 
-3. 把输入写入到redis
+3. 把输出入到redis
+
+((2020-02-24,华北),List((3,50), (2,47), (1,47)))
+((2020-02-24,华南),List((1,50), (2,46), (3,44)))
+((2020-02-24,华中),List((5,14), (4,12), (3,12)))
+((2020-02-24,华东),List((1,47), (2,39), (4,38)))
+
+key                                             value
+每天一个key                                      hash
+"day:area:ads:"2020-02-24                       field           value
+                                                "华北"          {"3": 50, "2": 47, "1": 47}
+ 
+ key-value no-sql数据库
+ value5大数据类型:
+    string
+    
+    list
+    
+    set
+        去重用
+    
+    hash
+        key-value (map)
+        
+    带分数的list
+    
+ 
+
 
 
  */
