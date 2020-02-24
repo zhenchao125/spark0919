@@ -6,7 +6,9 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 
 object MyKafkafUtil {
     
-    val map: Map[String, String] = Map[String, String]()
+    val map: Map[String, String] = Map[String, String](
+    
+    )
     def getStream(ssc: StreamingContext, topic: String) = {
         KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](
             ssc,
