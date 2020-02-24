@@ -22,7 +22,7 @@ object TransformDemo1 {
             
         })
         result.print(1000)
-        // 行动算子 流中的数据向写入到外部存储的时候: jdbc, hive, hbase..., 使用这个
+        // 行动算子 流中的数据向外写入到外部存储的时候: jdbc, hive, hbase..., 使用这个
         sourceStream.foreachRDD(rdd => {
             // 在驱动的位置
             
