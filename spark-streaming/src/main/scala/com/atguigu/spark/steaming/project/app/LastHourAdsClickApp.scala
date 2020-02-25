@@ -28,23 +28,27 @@ object LastHourAdsClickApp extends App {
         // 5. 写入到redis
         val key = "last:hour:ads"
         import org.json4s.JsonDSL._
+        
         import scala.collection.JavaConversions._
         adsIdAndHmCountIt.foreachRDD(rdd => {
             rdd.foreachPartition((it: Iterator[(String, Iterable[(String, Int)])]) => {
-                // 1.先建立连接
-                val client: Jedis = RedisUtil.getClient
-                
+               
                 // 2. 写入数据  (1. 单条写  2. 批次写)
                 if (it.hasNext) { // it.next
-                    val map = it.map{
+                    // 1.先建立连接
+                    val client: Jedis = RedisUtil.getClient
+    
+                    val map = it.map {
                         case (adsId, hmCountIt) =>
-                            (adsId, JsonMethods.compact(JsonMethods.render(hmCountIt)))
+                            //  [{}, {}]    toMap:  {k1: v1, k2: v2}
+                            val m = hmCountIt.toMap
+                            (adsId, JsonMethods.compact(JsonMethods.render(m)))
                     }.toMap
                     client.hmset(key, map)
+    
+                    // 3. 关闭连接
+                    client.close()
                 }
-                
-                // 3. 关闭连接
-                client.close()
             })
         })
         
