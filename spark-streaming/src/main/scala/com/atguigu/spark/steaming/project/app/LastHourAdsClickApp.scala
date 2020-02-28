@@ -40,7 +40,7 @@ object LastHourAdsClickApp extends App {
     
                     val map = it.map {
                         case (adsId, hmCountIt) =>
-                            //  [{}, {}]    toMap:  {k1: v1, k2: v2}
+                            // it: [{}, {}]    toMap:  {k1: v1, k2: v2}
                             val m = hmCountIt.toMap
                             (adsId, JsonMethods.compact(JsonMethods.render(m)))
                     }.toMap
